@@ -18,45 +18,58 @@
 
 
 ## 使用
-继承`AbsAccessTokenInterceptor`，并实现相应的抽像方法(指定token的位置、token对应的key、从服务端获取token的实现)。将之加入okhttp拦截器。
 
-**支持的token类型**
+1. 添加依赖
 
-```java
-public static final int TOKEN_IN_QUERY = 1;//token 在query
-public static final int TOKEN_IN_HEADER = 2;//token 在header
-public static final int TOKEN_IN_QUERY_AND_HEADER = 3;//token 在query和header同时存在
-```
+    ```
+    allprojects {
+        repositories {
+            maven { url 'https://dwvip.github.io/repo' }
+        }
+    }
 
-**需要实现的抽像方法**
+    implementation 'wang.unclecat.smarttoken:SmartToken:1.0'
+    ```
 
-```java
-/**
- * 解析http resp body，判断是否是“access token无效”错误
- *
- * @param respBody http 返回实体字符串
- * @return true: 是, false: 否
- */
-protected abstract boolean checkTokenError(String respBody);
+1. 继承`AbsAccessTokenInterceptor`，并实现相应的抽像方法(指定token的位置、token对应的key、从服务端获取token的实现)。将之加入okhttp拦截器。
 
-/**
- * access token在query或header里对应的key
- */
-protected abstract String tokenKey();
+    **支持的token类型**
 
-/**
- * 同步获取access token
- */
-protected abstract String getAccessTokenFromServer() throws IOException;
-```
+    ```java
+    public static final int TOKEN_IN_QUERY = 1;//token 在query
+    public static final int TOKEN_IN_HEADER = 2;//token 在header
+    public static final int TOKEN_IN_QUERY_AND_HEADER = 3;//token 在query和header同时存在
+    ```
 
+    **需要实现的抽像方法**
 
+    ```java
+    /**
+     * 解析http resp body，判断是否是“access token无效”错误
+     *
+     * @param respBody http 返回实体字符串
+     * @return true: 是, false: 否
+     */
+    protected abstract boolean checkTokenError(String respBody);
+    
+    /**
+     * access token在query或header里对应的key
+     */
+    protected abstract String tokenKey();
+    
+    /**
+     * 同步获取access token
+     */
+    protected abstract String getAccessTokenFromServer() throws IOException;
+    ```
 
-详请参考demo中`BaiduAccessAccessTokenInterceptor.java`
+    
 
+    详请参考demo中`BaiduAccessAccessTokenInterceptor.java`
 
+    
 
-demo截图：
+## demo截图：
 
  <img src="./raw/Screenshot_2020-12-15-15-24-27-288_wang.unclecat.smarttoken.jpg" width = "600" />
 
