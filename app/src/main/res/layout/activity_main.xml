@@ -1,66 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="wang.unclecat.smarttoken.activity.MainActivity"
-    >
+    tools:context="wang.unclecat.smarttoken.activity.MainActivity">
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@id/locText"
-        android:gravity="center"
-        android:layout_marginLeft="10dp"
-        android:text="在logcat中过滤Tag:OkHttp来验证access token是否自动设置到指定位置"/>
-    <TextView
-        android:id="@+id/locText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:layout_above="@id/location"
-        android:layout_marginLeft="10dp"
-        android:text="access token的位置:"/>
+        android:layout_centerHorizontal="true"
+        android:padding="10dp"
+        android:layout_marginBottom="20dp"
+        android:gravity="center_vertical"
+        android:background="@android:color/darker_gray"
+        android:text="在logcat中过滤Tag:&quot;OkHttp&quot;来验证access token是否自动设置到指定位置" />
+
+
     <LinearLayout
         android:id="@+id/location"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@id/ll_btn"
         android:layout_marginLeft="8dp"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="40dp"
+        android:layout_weight="1"
         android:orientation="vertical">
 
-        <CheckBox
-            android:id="@+id/cb_query"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="access token的位置:" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:layout_weight="1">
+
+            <CheckBox
+                android:id="@+id/cb_query"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:checked="true"
+                android:text="query" />
+
+            <CheckBox
+                android:id="@+id/cb_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="header" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="access token自动填充的方式:" />
+
+        <RadioGroup
+            android:id="@+id/radioGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:checked="true"
-            android:text="query" />
+            android:orientation="horizontal">
 
-        <CheckBox
-            android:id="@+id/cb_header"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="header" />
+            <RadioButton
+                android:id="@+id/radioButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="主动获取" />
 
+            <RadioButton
+                android:id="@+id/radioButton2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="被动获取" />
+        </RadioGroup>
     </LinearLayout>
+
     <LinearLayout
         android:id="@+id/ll_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:orientation="vertical"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="vertical">
 
         <Button
             android:id="@+id/btn_system_photo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="选择照片"/>
+            android:text="选择照片" />
 
     </LinearLayout>
 
@@ -74,25 +109,27 @@
             android:id="@+id/iv_photo"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_centerHorizontal="true"/>
+            android:layout_centerHorizontal="true"
+            android:layout_weight="1" />
+
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_centerHorizontal="true">
+            android:layout_centerHorizontal="true"
+            android:layout_weight="1">
+
             <ImageView
                 android:id="@+id/iv_photo2"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="match_parent" />
 
             <ProgressBar
                 android:id="@+id/progressBar"
-                android:visibility="gone"
                 style="?android:attr/progressBarStyle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"/>
+                android:layout_gravity="center"
+                android:visibility="gone" />
         </FrameLayout>
 
 

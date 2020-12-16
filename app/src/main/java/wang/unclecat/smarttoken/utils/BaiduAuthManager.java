@@ -10,9 +10,10 @@ public class BaiduAuthManager {
         mSP = context.getSharedPreferences("baidu_auth", Context.MODE_PRIVATE);
     }
 
-    public static void putToken(String token) {
+    public static void putAccessToken(String token) {
         SharedPreferences.Editor editor = mSP.edit();
-        editor.putString("token", token);
+        editor.putString("access_token", token);
+        editor.putLong("access_token_update_time", System.currentTimeMillis());
         editor.apply();
     }
 
@@ -21,7 +22,12 @@ public class BaiduAuthManager {
         editor.commit();
     }
 
-    public static String getToken() {
-        return mSP.getString("token", "");
+    public static String getAccessToken() {
+        return mSP.getString("access_token", "");
+    }
+
+    public static boolean isAccessTokenOutOfDate() {
+        long updateTime = mSP.getLong("access_token_update_time", 0);
+        return (System.currentTimeMillis()-updateTime)/1000>=29*24*60*60;//29天access token过期
     }
 }
