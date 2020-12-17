@@ -36,11 +36,9 @@ SmartToken通过使用okhttp的拦截器，自动**获取access _token**，并�
     int TOKEN_IN_HEADER = 2;//token 在header
     int TOKEN_IN_QUERY_AND_HEADER = 3;//token 在query和header同时存在
     //本库不支持把access_token放在body中，因为太另类。
-```
-    
+    ```
 
-    
-    更详细的使用方式，请参考demo中`BaiduAccessToken1.java`和`BaiduAccessToken2.java`
+1. 更详细的使用方式，请参考demo中`BaiduAccessToken1.java`和`BaiduAccessToken2.java`
     
     
 
@@ -57,3 +55,5 @@ SmartToken通过使用okhttp的拦截器，自动**获取access _token**，并�
 
 
 
+
+```
