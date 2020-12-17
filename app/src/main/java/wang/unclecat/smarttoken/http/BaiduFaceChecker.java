@@ -21,7 +21,7 @@ import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
 import timber.log.Timber;
-import wang.unclecat.smarttoken.AbsAccessTokenInterceptor;
+import wang.unclecat.smarttoken.SmartToken;
 import wang.unclecat.smarttoken.beans.RespBaiduHuman;
 import wang.unclecat.smarttoken.beans.RespBaiduToken;
 import wang.unclecat.smarttoken.http.api.BaiduFaceService;
@@ -39,21 +39,26 @@ public class BaiduFaceChecker {
     public static final String BASE_URL = "https://aip.baidubce.com/";
 
     /**
-     * 单图上传(智能判断access token是否有效(被动获取有效token)，对业务使用者隐藏access token的获取)
+     * 单图上传(自动填充access token，对业务使用者隐藏access token的获取)
      *
      * @param filePath
+     * @param tokenType 指定token的位置
+     * @param fillType token填充方式(1主动，2被动)
+     * @param observer
      */
-    public static void uploadFile(final String filePath, @AbsAccessTokenInterceptor.Visibility int tokenType, final Observer<RespBaiduHuman> observer) {
+    public static void uploadFile(String filePath, @SmartToken.Type int tokenType, int fillType, final Observer<RespBaiduHuman> observer) {
 
         Timber.d("uploadFile() called with: filePath = [ %s ], tokenType = [ %s ]", filePath, tokenType);
-//        String token = BaiduAuthManager.getToken();
+//        String token = BaiduAuthManager.getAccessToken();
         String token = "";//just for test !
-        BaiduAccessAccessTokenInterceptor tokenInterceptor = new BaiduAccessAccessTokenInterceptor(tokenType);
+
+        Interceptor tokenInterceptor = fillType == 1 ? new BaiduAccessToken1(tokenType) : new BaiduAccessToken2(tokenType);
+
         doUploadFile(token, filePath, tokenInterceptor).subscribe(observer);
     }
 
     /**
-     * 单图上传（依次执行获取access token和抠图请求）
+     * 不使用SmartToken的单图上传（依次执行获取access token和抠图请求）
      * @param filePath
      */
     @Deprecated
@@ -69,7 +74,7 @@ public class BaiduFaceChecker {
             public void onNext(@NonNull RespBaiduToken respBaiduToken) {
                 Timber.d("onNext() called with: respBaiduToken = [ %s ]", respBaiduToken);
                 if (!TextUtils.isEmpty(respBaiduToken.getAccessToken())) {
-                    BaiduAuthManager.putToken(respBaiduToken.getAccessToken());
+                    BaiduAuthManager.putAccessToken(respBaiduToken.getAccessToken());
 
                     doUploadFile(respBaiduToken.getAccessToken(), filePath, null).retry(2, new Predicate<Throwable>() {
                         @Override
@@ -131,7 +136,7 @@ public class BaiduFaceChecker {
 
         builder.retryOnConnectionFailure(true)
                 .addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.HEADERS))
-                .connectTimeout(15, TimeUnit.SECONDS)
+                .connectTimeout(20, TimeUnit.SECONDS)
                 .callTimeout(20, TimeUnit.SECONDS);
 
         if (interceptor != null) {

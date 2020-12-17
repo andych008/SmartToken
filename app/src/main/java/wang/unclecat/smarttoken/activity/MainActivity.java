@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RadioGroup;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -35,9 +36,9 @@ import wang.unclecat.smarttoken.utils.PhotoAlbumUtil;
 import wang.unclecat.smarttoken.utils.ToastUtil;
 import wang.unclecat.smarttoken.utils.permissionsUtil.Permissions;
 
-import static wang.unclecat.smarttoken.AbsAccessTokenInterceptor.TOKEN_IN_HEADER;
-import static wang.unclecat.smarttoken.AbsAccessTokenInterceptor.TOKEN_IN_QUERY;
-import static wang.unclecat.smarttoken.AbsAccessTokenInterceptor.TOKEN_IN_QUERY_AND_HEADER;
+import static wang.unclecat.smarttoken.SmartToken.TOKEN_IN_HEADER;
+import static wang.unclecat.smarttoken.SmartToken.TOKEN_IN_QUERY;
+import static wang.unclecat.smarttoken.SmartToken.TOKEN_IN_QUERY_AND_HEADER;
 
 public class MainActivity extends FragmentActivity {
 
@@ -76,6 +77,7 @@ public class MainActivity extends FragmentActivity {
         BaiduAuthManager.init(this.getApplicationContext());
     }
 
+    private int fillType = 1;
     private void initBind(){
 
         progressBar = findViewById(R.id.progressBar);
@@ -89,6 +91,23 @@ public class MainActivity extends FragmentActivity {
             @Override
             public void onClick(View v) {
                 goSystemPhoto();
+            }
+        });
+
+        RadioGroup radioGroup = findViewById(R.id.radioGroup);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.radioButton:
+                        fillType = 1;
+                        break;
+                    case R.id.radioButton2:
+                        fillType = 2;
+                        break;
+                    default:
+                        break;
+                }
             }
         });
     }
@@ -153,21 +172,11 @@ public class MainActivity extends FragmentActivity {
 
     private void handlePicBaidu(String photoPath) {
         Timber.i("--------2. 开始抠图");
+        final long startTime = System.currentTimeMillis();
 
-        int tokenType;
-        if (cb_query.isChecked()) {
-            if (cb_header.isChecked()) {
-                tokenType = TOKEN_IN_QUERY_AND_HEADER;
-            } else {
-                tokenType = TOKEN_IN_QUERY;
-            }
-        } else if (cb_header.isChecked()) {
-            tokenType = TOKEN_IN_HEADER;
-        } else {
-            tokenType = -1;
-        }
+        int tokenType = getTokenType();
 
-        BaiduFaceChecker.uploadFile(photoPath, tokenType, new Observer<RespBaiduHuman>() {
+        BaiduFaceChecker.uploadFile(photoPath, tokenType, fillType, new Observer<RespBaiduHuman>() {
             @Override
             public void onSubscribe(@NonNull Disposable d) {
                 showProgress();
@@ -175,7 +184,7 @@ public class MainActivity extends FragmentActivity {
 
             @Override
             public void onNext(@NonNull RespBaiduHuman respBaiduHuman) {
-                Timber.i("--------3. 抠图完成");
+                Timber.i("--------3. 抠图完成, 用时%s秒", (System.currentTimeMillis()-startTime)/1000);
 
                 Timber.d("onNext() called with: respBaiduHuman = [ %s ]", respBaiduHuman);
 
@@ -194,6 +203,7 @@ public class MainActivity extends FragmentActivity {
 
             @Override
             public void onError(@NonNull Throwable e) {
+                Timber.i("--------3. 抠图失败, 用时%s秒", (System.currentTimeMillis()-startTime)/1000);
                 Timber.e(e);
                 ToastUtil.showShortToast(MainActivity.this, e.getMessage());
                 hideProgress();
@@ -205,6 +215,22 @@ public class MainActivity extends FragmentActivity {
                 hideProgress();
             }
         });
+    }
+
+    private int getTokenType() {
+        int tokenType;
+        if (cb_query.isChecked()) {
+            if (cb_header.isChecked()) {
+                tokenType = TOKEN_IN_QUERY_AND_HEADER;
+            } else {
+                tokenType = TOKEN_IN_QUERY;
+            }
+        } else if (cb_header.isChecked()) {
+            tokenType = TOKEN_IN_HEADER;
+        } else {
+            tokenType = -1;
+        }
+        return tokenType;
     }
 
     private void showProgress() {

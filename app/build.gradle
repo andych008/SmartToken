@@ -57,5 +57,5 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:4.1.0'
 
     implementation project(':SmartToken')
-//    implementation 'wang.unclecat.smarttoken:SmartToken:1.0'
+//    implementation 'wang.unclecat.smarttoken:SmartToken:1.1'
 }
