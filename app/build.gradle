@@ -57,8 +57,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:logging-interceptor:4.1.0'
 
     implementation ('com.ypx.yimagepicker:support:3.1.4.1') {
-        exclude group: "com.android.support"
-        exclude group: "org.jetbrains"
+        exclude group: "org.jetbrains", module: "annotations-java5"
     }
 
     implementation project(':SmartToken')
