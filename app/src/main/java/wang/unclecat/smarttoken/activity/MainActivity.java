@@ -1,6 +1,7 @@
 package wang.unclecat.smarttoken.activity;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -15,6 +16,7 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -27,6 +29,7 @@ import com.orhanobut.logger.PrettyFormatStrategy;
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import okio.ByteString;
 import timber.log.Timber;
 import wang.unclecat.smarttoken.beans.RespBaiduHuman;
@@ -34,6 +37,7 @@ import wang.unclecat.smarttoken.http.BaiduFaceChecker;
 import wang.unclecat.smarttoken.utils.BaiduAuthManager;
 import wang.unclecat.smarttoken.utils.BitmapUtils;
 import wang.unclecat.smarttoken.utils.PhotoAlbumUtil;
+import wang.unclecat.smarttoken.utils.RxPLauncher;
 import wang.unclecat.smarttoken.utils.ToastUtil;
 import wang.unclecat.smarttoken.utils.permissionsUtil.Permissions;
 
@@ -149,7 +153,27 @@ public class MainActivity extends FragmentActivity {
         //设置Intent.ACTION_PICK
         intent.setAction(Intent.ACTION_PICK);
         intent.setType("image/*");
-        startActivityForResult(intent,2);
+
+
+//        startActivityForResult(intent,2);
+        Disposable subscribe = RxPLauncher.init(this)
+                .startForResult(intent)
+                .subscribe(new Consumer<RxPLauncher.Result>() {
+                    @Override
+                    public void accept(RxPLauncher.Result result) throws Exception {
+                        if (result.getResultCode() == Activity.RESULT_OK) {
+                            String photoPath = PhotoAlbumUtil.getRealPathFromUri(MainActivity.this, result.getData().getData());
+                            Glide.with(MainActivity.this).load(photoPath).apply(RequestOptions.noTransformation()
+                                    .override(iv_photo.getWidth(),iv_photo.getHeight())
+                                    .error(R.drawable.default_person_icon))
+                                    .into(iv_photo);
+
+                            handlePicBaidu(photoPath);
+                        } else {
+                            Toast.makeText(MainActivity.this, "ResultCode = " + result.getResultCode(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
 
