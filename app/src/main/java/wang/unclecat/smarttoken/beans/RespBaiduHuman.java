@@ -7,6 +7,12 @@ import wang.unclecat.smarttoken.utils.BeanHelper;
 import java.util.List;
 
 public class RespBaiduHuman {
+    private String apiType;
+
+    public void setApiType(String apiType) {
+        this.apiType = apiType;
+    }
+
     @SerializedName("log_id")
     @Expose
     private String logId;
@@ -25,6 +31,21 @@ public class RespBaiduHuman {
     @SerializedName("person_info")
     @Expose
     private List<PersonInfo> personInfo = null;
+
+    public String getBase64Img() {
+        if (apiType != null) {
+            if (apiType.contentEquals("scoremap")) {
+                return getScoremap();
+            } else if (apiType.contentEquals("labelmap")) {
+                return getLabelmap();
+            }
+        }
+        return getForeground();
+    }
+
+    public boolean isGray() {
+        return apiType.contentEquals("scoremap");
+    }
 
     public String getLogId() {
         return logId;

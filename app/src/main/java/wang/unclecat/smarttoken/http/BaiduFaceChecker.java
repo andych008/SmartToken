@@ -54,7 +54,7 @@ public class BaiduFaceChecker {
 
         Interceptor tokenInterceptor = fillType == 1 ? new BaiduAccessToken1(tokenType) : new BaiduAccessToken2(tokenType);
 
-        doUploadFile(token, filePath, tokenInterceptor).subscribe(observer);
+        doUploadFile(token, filePath, "scoremap", tokenInterceptor).subscribe(observer);
     }
 
     /**
@@ -76,7 +76,7 @@ public class BaiduFaceChecker {
                 if (!TextUtils.isEmpty(respBaiduToken.getAccessToken())) {
                     BaiduAuthManager.putAccessToken(respBaiduToken.getAccessToken());
 
-                    doUploadFile(respBaiduToken.getAccessToken(), filePath, null).retry(2, new Predicate<Throwable>() {
+                    doUploadFile(respBaiduToken.getAccessToken(), filePath, "foreground", null).retry(2, new Predicate<Throwable>() {
                         @Override
                         public boolean test(@NonNull Throwable throwable) throws Exception {
                             Timber.d("test() called with: throwable = [ %s ]", throwable.getMessage());
@@ -153,14 +153,14 @@ public class BaiduFaceChecker {
                 .subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    private static Observable<RespBaiduHuman> doUploadFile(String access_token, String filePath, Interceptor tokenInterceptor) {
+    private static Observable<RespBaiduHuman> doUploadFile(String access_token, String filePath, final String type, Interceptor tokenInterceptor) {
         Buffer buffer = FileUtils.bitmapFileToBuffer(filePath);
 
 //        byte[] bytes = buffer.readByteArray();
         ByteString byteString = buffer.readByteString();
         String base64 = byteString.base64();
 
-        Observable<RespBaiduHuman> respHumanObservable = createNormalAPI(tokenInterceptor).humanBody(access_token, base64, "foreground")
+        Observable<RespBaiduHuman> respHumanObservable = createNormalAPI(tokenInterceptor).humanBody(access_token, base64, type)
                 .subscribeOn(Schedulers.io())
                 .map(new Function<RespBaiduHuman, RespBaiduHuman>() {
                     @Override
@@ -168,6 +168,7 @@ public class BaiduFaceChecker {
                         if (respBaiduHuman.getPersonNum() <= 0) {
                             throw new RuntimeException("抠图失败");
                         }
+                        respBaiduHuman.setApiType(type);
                         return respBaiduHuman;
                     }
                 })

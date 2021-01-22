@@ -32,6 +32,7 @@ import timber.log.Timber;
 import wang.unclecat.smarttoken.beans.RespBaiduHuman;
 import wang.unclecat.smarttoken.http.BaiduFaceChecker;
 import wang.unclecat.smarttoken.utils.BaiduAuthManager;
+import wang.unclecat.smarttoken.utils.BitmapUtils;
 import wang.unclecat.smarttoken.utils.PhotoAlbumUtil;
 import wang.unclecat.smarttoken.utils.ToastUtil;
 import wang.unclecat.smarttoken.utils.permissionsUtil.Permissions;
@@ -170,7 +171,7 @@ public class MainActivity extends FragmentActivity {
 
     }
 
-    private void handlePicBaidu(String photoPath) {
+    private void handlePicBaidu(final String photoPath) {
         Timber.i("--------2. 开始抠图");
         final long startTime = System.currentTimeMillis();
 
@@ -183,15 +184,31 @@ public class MainActivity extends FragmentActivity {
             }
 
             @Override
-            public void onNext(@NonNull RespBaiduHuman respBaiduHuman) {
+            public void onNext(@NonNull RespBaiduHuman resp) {
                 Timber.i("--------3. 抠图完成, 用时%s秒", (System.currentTimeMillis()-startTime)/1000);
 
-                Timber.d("onNext() called with: respBaiduHuman = [ %s ]", respBaiduHuman);
+                Timber.d("onNext() called with: resp = [ %s ]", resp);
 
-                ByteString byteString = ByteString.decodeBase64(respBaiduHuman.getForeground());
+                ByteString byteString = ByteString.decodeBase64(resp.getBase64Img());
 
                 byte[] bytes = byteString.toByteArray();
-                Bitmap faceBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                Bitmap faceBitmap;
+                if (resp.isGray()) {
+                    // Load RGB data
+                    Bitmap rgb = BitmapFactory.decodeFile(photoPath);
+
+                    Timber.d("--------rgb");
+                    // Load Alpha data
+                    Bitmap alpha = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+
+                    Timber.d("--------alpha");
+                    faceBitmap = BitmapUtils.composeAlpha(rgb, alpha);
+
+                    Timber.d("--------composeAlpha");
+                } else {
+                    faceBitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                }
 
                 Timber.i("--------4. 生成bitmap");
                 Glide.with(MainActivity.this).load(faceBitmap).apply(RequestOptions.noTransformation()
